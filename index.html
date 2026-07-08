@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study English 🦉</title>
+<script>
+(function () {
+  var t = localStorage.getItem("study-english-theme");
+  if (t !== "light" && t !== "dark") t = "dark";
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app"></div>
+<script>window.COURSE = [];</script>
+<script src="js/data-1.js"></script>
+<script src="js/data-2.js"></script>
+<script src="js/data-3.js"></script>
+<script src="js/data-4.js"></script>
+<script src="js/data-5.js"></script>
+<script src="js/data-6.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

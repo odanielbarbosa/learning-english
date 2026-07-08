@@ -1,0 +1,15 @@
+# backups de progresso exportados pelo app (dados pessoais)
+db-study-english-*.json
+
+# tooling / editor
+.claude/
+.vscode/
+.idea/
+
+# SO
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# node (caso um dia use)
+node_modules/

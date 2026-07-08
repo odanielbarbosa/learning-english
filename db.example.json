@@ -1,0 +1,18 @@
+{
+  "_comment": "Exemplo do formato do banco de dados (JSON) gravado offline em localStorage. Use 'Exportar db.json' no app para baixar o seu de verdade, e 'Importar db.json' para restaurar/mover entre PCs.",
+  "v": 1,
+  "xp": 260,
+  "lessons": {
+    "u1l1": { "done": true, "best": 92, "attempts": 2, "lastPct": 92, "lastTs": 1783532480000 },
+    "u1l2": { "done": true, "best": 100, "attempts": 1, "lastPct": 100, "lastTs": 1783532487000 }
+  },
+  "sessions": [
+    { "ts": 1783532480000, "mode": "lesson", "l": "u1l1", "title": "Subject & Object Pronouns", "total": 13, "cf": 12, "pct": 92, "xp": 130, "ms": 240000 },
+    { "ts": 1783532487000, "mode": "lesson", "l": "u1l2", "title": "Possessives", "total": 14, "cf": 14, "pct": 100, "xp": 130, "ms": 180000 }
+  ],
+  "events": [
+    { "ts": 1783532460000, "u": "u1", "l": "u1l1", "t": "choice", "c": 1, "f": 1 },
+    { "ts": 1783532461000, "u": "u1", "l": "u1l1", "t": "type", "c": 0, "f": 1 },
+    { "ts": 1783532475000, "u": "u1", "l": "u1l1", "t": "type", "c": 1, "f": 0 }
+  ]
+}
