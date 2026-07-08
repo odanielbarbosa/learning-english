@@ -14,7 +14,8 @@ App de estudo de inglês estilo Duolingo — **100% offline**, sem servidor e se
 
 ## O que tem
 
-- **7 unidades / 16 lições / ~200 exercícios**, **na mesma ordem das docs**: Pronomes & Possessivos → Simple Present → Present Progressive → Simple Past & Past Progressive → Present Perfect → Past Perfect → Futuro
+- **7 níveis / 16 lições / ~200 exercícios**, **na mesma ordem das docs**: Pronomes & Possessivos → Simple Present → Present Progressive → Simple Past & Past Progressive → Present Perfect → Past Perfect → Futuro
+- Home em formato de **níveis** — um por tela, navegando pelo próximo/anterior com setas (ou pelos dots); ao concluir um nível, aparece o botão "Próximo nível →"
 - Cada lição: **teoria primeiro** (resumo das docs, com tabelas) → **exercícios na ordem exata das worksheets**, com correção na hora e explicação do porquê
 - 4 tipos de exercício: múltipla escolha, digitar, montar a frase e ligar pares
 - Exercício errado **volta a aparecer** até você acertar (estilo Duolingo)

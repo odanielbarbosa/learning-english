@@ -170,6 +170,28 @@ body {
 
 .foot-note { text-align: center; font-size: 12px; color: var(--ink-soft); margin-top: 30px; line-height: 1.6; }
 
+/* ---------- stepper de níveis (home) ---------- */
+.level-nav { display: flex; align-items: center; gap: 10px; margin: 2px 0 12px; }
+.level-arrow {
+  flex: 0 0 auto; width: 50px; height: 50px; border-radius: 50%;
+  background: var(--card); border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line);
+  font-size: 22px; font-weight: 900; color: var(--blue); cursor: pointer; line-height: 1;
+}
+.level-arrow:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
+.level-arrow:disabled { opacity: .35; cursor: not-allowed; color: var(--ink-soft); }
+.level-meta { flex: 1; text-align: center; min-width: 0; }
+.level-meta .k { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); }
+.level-meta .v { font-size: 15px; font-weight: 900; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.level-dots { display: flex; gap: 7px; justify-content: center; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.level-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); cursor: pointer; border: none; padding: 0; transition: transform .15s; }
+.level-dot.done { background: var(--green); }
+.level-dot.cur { background: var(--blue); transform: scale(1.4); }
+.level-cta { text-align: center; margin: 6px 0 2px; }
+.lvl-in-r { animation: lvlInR .28s ease; }
+.lvl-in-l { animation: lvlInL .28s ease; }
+@keyframes lvlInR { from { opacity: 0; transform: translateX(26px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes lvlInL { from { opacity: 0; transform: translateX(-26px); } to { opacity: 1; transform: translateX(0); } }
+
 /* ---------- lesson (theory + exercises) ---------- */
 .lesson-top { display: flex; align-items: center; gap: 14px; padding: 6px 0 18px; }
 .close-x {

@@ -133,6 +133,23 @@ function toggleTheme() {
 // ---------- estado da sessão ----------
 let S = null;
 
+// ---------- stepper de níveis (1 nível/tela) ----------
+let levelIdx = 0;
+let levelAnim = ""; // "r" | "l" para animar a troca de nível
+function gotoLevel(i) {
+  if (i < 0 || i > COURSE.length - 1 || i === levelIdx) return;
+  levelAnim = i > levelIdx ? "r" : "l";
+  levelIdx = i;
+  home();
+}
+function firstUnfinishedLevel() {
+  for (let i = 0; i < COURSE.length; i++) {
+    const allDone = COURSE[i].lessons.every(l => DB.lessons[l.id] && DB.lessons[l.id].done);
+    if (!allDone) return i;
+  }
+  return COURSE.length - 1;
+}
+
 // =====================================================
 // HOME
 // =====================================================
@@ -159,32 +176,40 @@ function home() {
     <div class="bar"><div style="width:${pct}%"></div></div>
   </div>
   <div class="io-row"><button class="nav-btn" id="goProgress">📊 Ver progresso</button></div>
-  <div style="height:16px"></div>`;
+  <div style="height:14px"></div>`;
 
-  if (doneCount > 0) {
-    html += `
-    <div class="card mix-card">
-      <div class="licon">🎲</div>
-      <div class="lesson-info">
-        <h3>Prática mista</h3>
-        <p>15 exercícios aleatórios de todo o material</p>
-      </div>
-      <button class="btn blue small" data-mix="1">Praticar</button>
-    </div>`;
-  }
+  if (levelIdx < 0) levelIdx = 0;
+  if (levelIdx > COURSE.length - 1) levelIdx = COURSE.length - 1;
+  const u = COURSE[levelIdx];
+  const total = COURSE.length;
+  const unitDone = unit => unit.lessons.every(l => DB.lessons[l.id] && DB.lessons[l.id].done);
 
-  COURSE.forEach(u => {
-    html += `
+  // navegação de nível (setas + dots) — mostra apenas 1 nível por tela
+  html += `
+  <div class="level-nav">
+    <button class="level-arrow" id="prevLvl"${levelIdx === 0 ? " disabled" : ""} title="Nível anterior">←</button>
+    <div class="level-meta">
+      <div class="k">Nível ${levelIdx + 1} de ${total}</div>
+      <div class="v">${u.icon} ${esc(u.title)}</div>
+    </div>
+    <button class="level-arrow" id="nextLvl"${levelIdx === total - 1 ? " disabled" : ""} title="Próximo nível">→</button>
+  </div>
+  <div class="level-dots">
+    ${COURSE.map((unit, i) => `<button class="level-dot${i === levelIdx ? " cur" : ""}${unitDone(unit) ? " done" : ""}" data-lvl="${i}" title="${esc(unit.title)}"></button>`).join("")}
+  </div>
+
+  <div class="level${levelAnim ? " lvl-in-" + levelAnim : ""}">
     <div class="unit">
       <div class="unit-head" style="background:${u.color}">
         <div class="uicon">${u.icon}</div>
         <div><h2>${esc(u.title)}</h2><p>${esc(u.desc)}</p></div>
       </div>`;
-    u.lessons.forEach(l => {
-      const pr = DB.lessons[l.id];
-      const done = pr && pr.done;
-      const stars = pr ? (pr.best >= 90 ? "⭐⭐⭐" : pr.best >= 70 ? "⭐⭐" : "⭐") : "";
-      html += `
+
+  u.lessons.forEach(l => {
+    const pr = DB.lessons[l.id];
+    const done = pr && pr.done;
+    const stars = pr ? (pr.best >= 90 ? "⭐⭐⭐" : pr.best >= 70 ? "⭐⭐" : "⭐") : "";
+    html += `
       <div class="lesson${done ? " done" : ""}">
         <div class="licon">${done ? "✅" : l.icon}</div>
         <div class="lesson-info">
@@ -194,9 +219,29 @@ function home() {
         </div>
         <button class="btn ${done ? "ghost" : ""} small" data-lesson="${l.id}">${done ? "Revisar" : "Começar"}</button>
       </div>`;
-    });
-    html += `</div>`;
   });
+
+  html += `
+    </div>`;
+
+  // ao concluir o nível, botão para avançar ao próximo (a "seta" de progressão)
+  if (unitDone(u) && levelIdx < total - 1) {
+    html += `<div class="level-cta"><button class="btn" id="nextLvlCta">Próximo nível: ${esc(COURSE[levelIdx + 1].title)} →</button></div>`;
+  }
+  html += `</div>`;
+  levelAnim = "";
+
+  if (doneCount > 0) {
+    html += `
+    <div class="card mix-card" style="margin-top:22px">
+      <div class="licon">🎲</div>
+      <div class="lesson-info">
+        <h3>Prática mista</h3>
+        <p>15 exercícios aleatórios de todo o material</p>
+      </div>
+      <button class="btn blue small" data-mix="1">Praticar</button>
+    </div>`;
+  }
 
   html += `
   <div class="io-row">
@@ -219,6 +264,11 @@ function home() {
   if (mixBtn) mixBtn.addEventListener("click", startMix);
   app.querySelector(".theme-toggle").addEventListener("click", toggleTheme);
   app.querySelector("#goProgress").addEventListener("click", progress);
+  app.querySelector("#prevLvl").addEventListener("click", () => gotoLevel(levelIdx - 1));
+  app.querySelector("#nextLvl").addEventListener("click", () => gotoLevel(levelIdx + 1));
+  const cta = app.querySelector("#nextLvlCta");
+  if (cta) cta.addEventListener("click", () => gotoLevel(levelIdx + 1));
+  app.querySelectorAll("[data-lvl]").forEach(d => d.addEventListener("click", () => gotoLevel(Number(d.dataset.lvl))));
   app.querySelector("#expBtn").addEventListener("click", exportDB);
   app.querySelector("#impBtn").addEventListener("click", pickImportFile);
   app.querySelector("#resetBtn").addEventListener("click", resetDB);
@@ -762,5 +812,6 @@ function finish() {
 }
 
 // go!
+levelIdx = firstUnfinishedLevel();
 home();
 })();
