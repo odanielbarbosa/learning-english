@@ -42,7 +42,7 @@ Botão **"Ver progresso"** na home abre um dashboard com sua evolução:
 
 ## Login / perfis
 
-Ao abrir, o app pede **quem está estudando**. É preciso informar um usuário que exista no "banco de usuários" ([`js/users.js`](js/users.js)) — dá para clicar no perfil ou digitar o id. Já vêm cadastrados **dabcruz** (Daniel), **isacruz** (Isa) e **teachergisele** (Teacher Gisele).
+Ao abrir, o app pede o **usuário**. É preciso informar um id que exista no "banco de usuários" ([`js/users.js`](js/users.js)) — a tela mostra apenas o campo de digitação (sem exemplos nem atalhos). Já vêm cadastrados **dabcruz** (Daniel), **isacruz** (Isa) e **teachergisele** (Teacher Gisele).
 
 Cada usuário tem o **progresso totalmente separado** (chave própria `study-english-v1::<id>` no localStorage): XP, níveis, sessões e histórico independentes. A tela de login mostra o XP de cada perfil, e o botão **"Trocar usuário"** na home volta para a seleção. Para cadastrar mais alguém, basta adicionar um objeto em `js/users.js`.
 

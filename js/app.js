@@ -142,16 +142,6 @@ function findUser(input) {
   if (!q) return null;
   return USERS.find(u => u.id.toLowerCase() === q) || null;
 }
-function peekUserStats(id) {
-  try {
-    let raw = localStorage.getItem(STORE + "::" + id);
-    if (!raw && id === "dabcruz") raw = localStorage.getItem(STORE); // progresso legado (pré-login)
-    if (!raw) return null;
-    const d = JSON.parse(raw);
-    const done = d.lessons ? Object.keys(d.lessons).filter(k => d.lessons[k] && d.lessons[k].done).length : 0;
-    return { xp: Number(d.xp) || 0, done: Math.min(done, 16) };
-  } catch (e) { return null; }
-}
 function login(user) {
   if (!user) return;
   currentUser = user;
@@ -177,29 +167,15 @@ function loginScreen() {
   <div class="login">
     <button class="theme-toggle login-theme" title="${dark ? "Mudar para tema claro" : "Mudar para tema escuro"}">${dark ? "☀️" : "🌙"}</button>
     <div class="login-brand"><span>🦉</span> Study English</div>
-    <div class="login-title">Quem está estudando?</div>
-    <div class="profiles">
-      ${USERS.map(u => {
-        const st = peekUserStats(u.id);
-        return `<button class="profile" data-user="${u.id}">
-          <div class="avatar" style="background:${u.color}">${u.avatar}</div>
-          <div class="pname">${esc(u.name)}</div>
-          <div class="pstat">${st ? "⭐ " + st.xp + " XP · ✅ " + st.done + "/16" : "novo por aqui"}</div>
-        </button>`;
-      }).join("")}
-    </div>
-    <div class="login-or">ou digite seu usuário</div>
+    <div class="login-title">Quem é você?</div>
     <div class="login-form">
-      <input id="userInput" class="type-input" placeholder="ex: dabcruz" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <input id="userInput" class="type-input" placeholder="Usuário" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button class="btn" id="loginBtn">Entrar</button>
     </div>
     <div class="login-err" id="loginErr"></div>
   </div>`;
 
   app.querySelector(".login-theme").addEventListener("click", toggleTheme);
-  app.querySelectorAll("[data-user]").forEach(b =>
-    b.addEventListener("click", () => login(findUser(b.dataset.user)))
-  );
   const inp = app.querySelector("#userInput");
   const err = app.querySelector("#loginErr");
   const doLogin = () => {
