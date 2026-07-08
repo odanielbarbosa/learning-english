@@ -2,9 +2,16 @@
 
 App de estudo de inglês estilo Duolingo — **100% offline**, sem servidor e sem instalar nada. Todo o conteúdo é gerado a partir dos PDFs da pasta `assets/`.
 
+**🌐 Acesse online:** https://odanielbarbosa.github.io/learning-english/
+
 ## Como usar
 
-**Dê dois cliques no `index.html`** — abre direto no navegador (funciona em `file://`, sem internet).
+Duas formas (funcionam igual — o progresso fica salvo no navegador de cada uma):
+
+- **Online:** abra o link acima (GitHub Pages).
+- **Offline:** dê dois cliques no `index.html` (funciona em `file://`, sem internet).
+
+> Publicado via **GitHub Pages** (branch `main`, pasta raiz). Cada `git push` na `main` republica o site automaticamente.
 
 | Fonte (`assets/`) | Conteúdo |
 |---|---|
