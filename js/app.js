@@ -3,7 +3,10 @@
 
 const app = document.getElementById("app");
 const STORE = "study-english-v1";
+const USER_KEY = "study-english-user";
+const USERS = window.USERS || [];
 const COURSE = window.COURSE;
+let currentUser = null;
 
 // =====================================================
 // BANCO DE DADOS (JSON em localStorage) — 100% offline
@@ -25,12 +28,13 @@ function normalizeDB(raw) {
     events: Array.isArray(d.events) ? d.events : []
   };
 }
+function dbKey() { return STORE + "::" + (currentUser ? currentUser.id : "_none"); }
 function loadDB() {
-  try { return normalizeDB(JSON.parse(localStorage.getItem(STORE) || "{}")); }
+  try { return normalizeDB(JSON.parse(localStorage.getItem(dbKey()) || "{}")); }
   catch (e) { return normalizeDB(null); }
 }
-let DB = loadDB();
-function saveDB() { try { localStorage.setItem(STORE, JSON.stringify(DB)); } catch (e) {} }
+let DB = normalizeDB(null); // carregado de verdade no login (banco por usuário)
+function saveDB() { if (!currentUser) return; try { localStorage.setItem(dbKey(), JSON.stringify(DB)); } catch (e) {} }
 
 function logEvent(ev) {
   DB.events.push(ev);
@@ -45,7 +49,7 @@ function exportDB() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   const stamp = ymd(Date.now());
-  a.href = url; a.download = "db-study-english-" + stamp + ".json";
+  a.href = url; a.download = "db-study-english-" + (currentUser ? currentUser.id + "-" : "") + stamp + ".json";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
@@ -68,7 +72,7 @@ function pickImportFile() {
   inp.click();
 }
 function resetDB() {
-  if (!confirm("Apagar TODO o progresso e histórico deste navegador? (dica: exporte um db.json antes)")) return;
+  if (!confirm("Apagar TODO o progresso de " + (currentUser ? currentUser.name : "este usuário") + "? (dica: exporte um db.json antes)")) return;
   DB = normalizeDB(null); saveDB(); home();
 }
 
@@ -130,6 +134,85 @@ function toggleTheme() {
   if (b) { b.textContent = t === "dark" ? "☀️" : "🌙"; b.title = t === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"; }
 }
 
+// =====================================================
+// LOGIN / USUÁRIOS (valida contra o banco em js/users.js)
+// =====================================================
+function findUser(input) {
+  const q = String(input || "").trim().toLowerCase();
+  if (!q) return null;
+  return USERS.find(u => u.id.toLowerCase() === q) || null;
+}
+function peekUserStats(id) {
+  try {
+    let raw = localStorage.getItem(STORE + "::" + id);
+    if (!raw && id === "dabcruz") raw = localStorage.getItem(STORE); // progresso legado (pré-login)
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    const done = d.lessons ? Object.keys(d.lessons).filter(k => d.lessons[k] && d.lessons[k].done).length : 0;
+    return { xp: Number(d.xp) || 0, done: Math.min(done, 16) };
+  } catch (e) { return null; }
+}
+function login(user) {
+  if (!user) return;
+  currentUser = user;
+  localStorage.setItem(USER_KEY, user.id);
+  // adota o progresso legado (feito antes do login) para o dabcruz, uma única vez
+  if (user.id === "dabcruz" && !localStorage.getItem(dbKey()) && localStorage.getItem(STORE)) {
+    try { localStorage.setItem(dbKey(), localStorage.getItem(STORE)); } catch (e) {}
+  }
+  DB = loadDB();
+  levelIdx = firstUnfinishedLevel();
+  home();
+}
+function logout() {
+  currentUser = null;
+  localStorage.removeItem(USER_KEY);
+  DB = normalizeDB(null);
+  loginScreen();
+}
+function loginScreen() {
+  S = null;
+  const dark = currentTheme() === "dark";
+  app.innerHTML = `
+  <div class="login">
+    <button class="theme-toggle login-theme" title="${dark ? "Mudar para tema claro" : "Mudar para tema escuro"}">${dark ? "☀️" : "🌙"}</button>
+    <div class="login-brand"><span>🦉</span> Study English</div>
+    <div class="login-title">Quem está estudando?</div>
+    <div class="profiles">
+      ${USERS.map(u => {
+        const st = peekUserStats(u.id);
+        return `<button class="profile" data-user="${u.id}">
+          <div class="avatar" style="background:${u.color}">${u.avatar}</div>
+          <div class="pname">${esc(u.name)}</div>
+          <div class="pstat">${st ? "⭐ " + st.xp + " XP · ✅ " + st.done + "/16" : "novo por aqui"}</div>
+        </button>`;
+      }).join("")}
+    </div>
+    <div class="login-or">ou digite seu usuário</div>
+    <div class="login-form">
+      <input id="userInput" class="type-input" placeholder="ex: dabcruz" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="btn" id="loginBtn">Entrar</button>
+    </div>
+    <div class="login-err" id="loginErr"></div>
+  </div>`;
+
+  app.querySelector(".login-theme").addEventListener("click", toggleTheme);
+  app.querySelectorAll("[data-user]").forEach(b =>
+    b.addEventListener("click", () => login(findUser(b.dataset.user)))
+  );
+  const inp = app.querySelector("#userInput");
+  const err = app.querySelector("#loginErr");
+  const doLogin = () => {
+    const u = findUser(inp.value);
+    if (!u) { err.textContent = "Usuário “" + inp.value.trim() + "” não encontrado. 🤔"; inp.focus(); return; }
+    login(u);
+  };
+  app.querySelector("#loginBtn").addEventListener("click", doLogin);
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+  inp.focus();
+  window.scrollTo(0, 0);
+}
+
 // ---------- estado da sessão ----------
 let S = null;
 
@@ -170,6 +253,11 @@ function home() {
       </div>
       <button class="theme-toggle" title="${dark ? "Mudar para tema claro" : "Mudar para tema escuro"}">${dark ? "☀️" : "🌙"}</button>
     </div>
+  </div>
+  <div class="user-bar">
+    <div class="avatar sm" style="background:${currentUser.color}">${currentUser.avatar}</div>
+    <div class="uwrap"><div class="uhi">Olá, ${esc(currentUser.name)}! 👋</div></div>
+    <button class="nav-btn" id="logoutBtn">↩︎ Trocar usuário</button>
   </div>
   <div class="course-progress">
     <div class="label">Progresso do curso — ${pct}%</div>
@@ -263,6 +351,7 @@ function home() {
   const mixBtn = app.querySelector("[data-mix]");
   if (mixBtn) mixBtn.addEventListener("click", startMix);
   app.querySelector(".theme-toggle").addEventListener("click", toggleTheme);
+  app.querySelector("#logoutBtn").addEventListener("click", logout);
   app.querySelector("#goProgress").addEventListener("click", progress);
   app.querySelector("#prevLvl").addEventListener("click", () => gotoLevel(levelIdx - 1));
   app.querySelector("#nextLvl").addEventListener("click", () => gotoLevel(levelIdx + 1));
@@ -287,7 +376,7 @@ function progress() {
   let html = `
   <div class="dash-head">
     <button class="dash-back" id="back" title="Voltar">←</button>
-    <h1>📊 Meu progresso</h1>
+    <h1>📊 Progresso — ${esc(currentUser.name)}</h1>
     <button class="theme-toggle" title="Tema">${currentTheme() === "dark" ? "☀️" : "🌙"}</button>
   </div>`;
 
@@ -812,6 +901,9 @@ function finish() {
 }
 
 // go!
-levelIdx = firstUnfinishedLevel();
-home();
+(function boot() {
+  const saved = localStorage.getItem(USER_KEY);
+  const u = saved ? findUser(saved) : null;
+  if (u) login(u); else loginScreen();
+})();
 })();

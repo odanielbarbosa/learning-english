@@ -40,9 +40,15 @@ Botão **"Ver progresso"** na home abre um dashboard com sua evolução:
 - **Domínio por unidade** — precisão de 1ª tentativa em cada tema
 - **Sessões recentes** — tabela do histórico
 
+## Login / perfis
+
+Ao abrir, o app pede **quem está estudando**. É preciso informar um usuário que exista no "banco de usuários" ([`js/users.js`](js/users.js)) — dá para clicar no perfil ou digitar o id. Já vêm cadastrados **dabcruz** (Daniel), **isacruz** (Isa) e **teachergisele** (Teacher Gisele).
+
+Cada usuário tem o **progresso totalmente separado** (chave própria `study-english-v1::<id>` no localStorage): XP, níveis, sessões e histórico independentes. A tela de login mostra o XP de cada perfil, e o botão **"Trocar usuário"** na home volta para a seleção. Para cadastrar mais alguém, basta adicionar um objeto em `js/users.js`.
+
 ## Banco de dados (JSON, offline)
 
-O progresso é salvo automaticamente num **banco JSON no `localStorage`** do navegador. Ele grava o *processo* de estudo:
+O progresso de cada usuário é salvo automaticamente num **banco JSON no `localStorage`** do navegador. Ele grava o *processo* de estudo:
 
 - `xp`, `lessons` — pontuação e melhor nota por lição
 - `sessions` — cada lição/prática concluída (quando, precisão, XP, duração)
